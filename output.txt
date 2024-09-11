@@ -1,0 +1,19 @@
+<file_overview>
+Total files: 1
+Date generated: 2024-09-11 18:57:53
+File types included: .py
+Folder Structure:
+└── main.py
+
+Files included:
+- main.py
+</file_overview>
+
+<file path="main.py" size="81" modified="2024-09-11 18:56:34">
+def main():
+    print("Hello, world!")
+
+if __name__ == "__main__":
+    main()
+</file>
+

@@ -3,6 +3,16 @@ import datetime
 import argparse
 
 
+def is_last_item(current_index, contents, path, file_extensions):
+    """Check if the current item is the last visible item in the directory."""
+    for i in range(current_index + 1, len(contents)):
+        item_path = os.path.join(path, contents[i])
+        if os.path.isdir(item_path):
+            return False
+        if file_extensions is None or any(contents[i].endswith(ext) for ext in file_extensions):
+            return False
+    return True
+
 def create_folder_tree(path, file_extensions=None, ignore_folders=None, prefix=''):
     if ignore_folders is None:
         ignore_folders = []
@@ -14,10 +24,10 @@ def create_folder_tree(path, file_extensions=None, ignore_folders=None, prefix='
 
     for i, item in enumerate(contents):
         item_path = os.path.join(path, item)
-        is_last = i == len(contents) - 1
+        is_last = is_last_item(i, contents, path, file_extensions)
 
         if os.path.isdir(item_path):
-            tree += f"{prefix}{'└── ' if is_last else '├── '}{item}\n"
+            tree += f"{prefix}{'└── ' if is_last else '├── '}{item}/\n"
             extended_prefix = prefix + ('    ' if is_last else '│   ')
             tree += create_folder_tree(item_path, file_extensions, ignore_folders, extended_prefix)
         elif file_extensions is None or any(item.endswith(ext) for ext in file_extensions):
