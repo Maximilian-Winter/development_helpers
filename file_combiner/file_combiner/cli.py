@@ -1,5 +1,5 @@
 import argparse
-from .combiner import process_folder
+from file_combiner.combiner import process_folder
 
 
 def main():

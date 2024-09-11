@@ -1,6 +1,7 @@
 import os
 import datetime
 
+
 def is_last_item(current_index, contents, path, file_extensions):
     """Check if the current item is the last visible item in the directory."""
     for i in range(current_index + 1, len(contents)):
@@ -10,6 +11,7 @@ def is_last_item(current_index, contents, path, file_extensions):
         if file_extensions is None or any(contents[i].endswith(ext) for ext in file_extensions):
             return False
     return True
+
 
 def create_folder_tree(path, file_extensions=None, ignore_folders=None, prefix=''):
     if ignore_folders is None:
@@ -32,6 +34,7 @@ def create_folder_tree(path, file_extensions=None, ignore_folders=None, prefix='
             tree += f"{prefix}{'└── ' if is_last else '├── '}{item}\n"
 
     return tree
+
 
 def process_folder(folder_path, output_file, file_extensions=None, ignore_folders=None):
     if not os.path.isdir(folder_path):
