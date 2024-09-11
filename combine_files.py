@@ -1,8 +1,9 @@
 import os
 import datetime
+import argparse
 
 
-def create_folder_tree(path, ignore_folders=None, prefix=''):
+def create_folder_tree(path, file_extensions=None, ignore_folders=None, prefix=''):
     if ignore_folders is None:
         ignore_folders = []
 
@@ -14,44 +15,43 @@ def create_folder_tree(path, ignore_folders=None, prefix=''):
     for i, item in enumerate(contents):
         item_path = os.path.join(path, item)
         is_last = i == len(contents) - 1
-        tree += f"{prefix}{'└── ' if is_last else '├── '}{item}\n"
 
         if os.path.isdir(item_path):
+            tree += f"{prefix}{'└── ' if is_last else '├── '}{item}\n"
             extended_prefix = prefix + ('    ' if is_last else '│   ')
-            tree += create_folder_tree(item_path, ignore_folders, extended_prefix)
+            tree += create_folder_tree(item_path, file_extensions, ignore_folders, extended_prefix)
+        elif file_extensions is None or any(item.endswith(ext) for ext in file_extensions):
+            tree += f"{prefix}{'└── ' if is_last else '├── '}{item}\n"
 
     return tree
 
 
-def combine_files(folder_path, output_file, file_extensions, ignore_folders=None):
+def process_folder(folder_path, output_file, file_extensions=None, ignore_folders=None):
     if not os.path.isdir(folder_path):
         print(f"Error: The folder '{folder_path}' does not exist.")
         return
 
     if ignore_folders is None:
-        ignore_folders = []
+        ignore_folders = ['.git', 'node_modules', '__pycache__']
 
-    files_by_extension = {ext: [] for ext in file_extensions}
-
+    all_files = []
     for root, _, files in os.walk(folder_path):
         if any(ignored in root.split(os.sep) for ignored in ignore_folders):
             continue
         for filename in files:
-            file_ext = os.path.splitext(filename)[1]
-            if file_ext in file_extensions:
-                files_by_extension[file_ext].append(os.path.join(root, filename))
+            if file_extensions is None or any(filename.endswith(ext) for ext in file_extensions):
+                all_files.append(os.path.join(root, filename))
 
-    for ext in file_extensions:
-        files_by_extension[ext].sort()
-
-    all_files = [file for ext in file_extensions for file in files_by_extension[ext]]
+    all_files.sort()
 
     with open(output_file, 'w', encoding='utf-8') as outfile:
         outfile.write("<file_overview>\n")
         outfile.write(f"Total files: {len(all_files)}\n")
         outfile.write(f"Date generated: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        if file_extensions:
+            outfile.write(f"File types included: {', '.join(file_extensions)}\n")
         outfile.write("Folder Structure:\n")
-        folder_tree = create_folder_tree(folder_path, ignore_folders)
+        folder_tree = create_folder_tree(folder_path, file_extensions, ignore_folders)
         outfile.write(folder_tree)
         outfile.write("\nFiles included:\n")
         for file_path in all_files:
@@ -76,8 +76,21 @@ def combine_files(folder_path, output_file, file_extensions, ignore_folders=None
             except Exception as e:
                 print(f"Error reading file '{file_path}': {str(e)}")
 
-    print(f"All files with extensions {', '.join(file_extensions)} have been combined into '{output_file}'.")
+    print(f"All{'specified' if file_extensions else ''} files have been processed and combined into '{output_file}'.")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Process files in a folder and generate an output file.")
+    parser.add_argument("folder_path", help="Path to the folder to process")
+    parser.add_argument("--output", default="output.txt", help="Name of the output file (default: output.txt)")
+    parser.add_argument("--extensions", nargs="*", help="File extensions to include (e.g., .h .cpp)")
+    parser.add_argument("--ignore", nargs="*", default=['.git', 'node_modules', '__pycache__'],
+                        help="Folders to ignore (default: ['.git', 'node_modules', '__pycache__'])")
+
+    args = parser.parse_args()
+
+    process_folder(args.folder_path, args.output, args.extensions, args.ignore)
 
 
 if __name__ == '__main__':
-    combine_files("abc", "HttpStuff.txt", [".h", ".cpp"], ['.git', 'node_modules', '__pycache__'])
+    main()
