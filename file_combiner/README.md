@@ -15,7 +15,7 @@ pip install file_combiner
 After installation, you can use the `file-combiner` command from anywhere in your terminal:
 
 ```
-file-combiner /path/to/folder --output combined_output.txt --extensions .py .txt --ignore venv
+file-combiner /path/to/folder --output combined_output.txt --extensions .py .txt --ignore venv .git
 ```
 
 ### Arguments:
@@ -23,7 +23,7 @@ file-combiner /path/to/folder --output combined_output.txt --extensions .py .txt
 - `folder_path`: Path to the folder to process (required)
 - `--output`: Name of the output file (default: output.txt)
 - `--extensions`: File extensions to include (e.g., .py .txt)
-- `--ignore`: Folders to ignore (default: ['.git', 'node_modules', '__pycache__'])
+- `--ignore`: Folders to ignore (e.g., git node_modules)(default: ['.git', 'node_modules', '__pycache__'])
 
 ## License
 
